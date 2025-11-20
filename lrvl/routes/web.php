@@ -1,7 +1,10 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ClubController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('clubs.index');
 });
+
+Route::resource('clubs', ClubController::class);
+
