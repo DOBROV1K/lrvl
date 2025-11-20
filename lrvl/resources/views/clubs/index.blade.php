@@ -34,21 +34,10 @@
         </div>
 
         <div class="card-footer bg-white border-0 mt-auto d-flex gap-2 justify-content-between">
-            <button 
-                class="btn btn-primary btn-sm open-modal-btn"
-                data-id="{{ $club->id }}"
-                data-name="{{ $club->name }}"
-                data-country="{{ $club->country }}"
-                data-founded="{{ $club->founded }}"
-                data-president="{{ $club->president }}"
-                data-stadium="{{ $club->stadium }}"
-                data-capacity="{{ $club->capacity }}"
-                data-trophies="{{ $club->trophies }}"
-                data-description="{{ $club->description }}"
-                data-image="{{ asset($club->image_path) }}"
-            >
+            <a href="{{ route('clubs.show', $club) }}" class="btn btn-primary btn-sm flex-fill">
                 Подробнее
-            </button>
+            </a>
+
 
             <button 
                 class="btn btn-outline-secondary btn-sm edit-modal-btn"

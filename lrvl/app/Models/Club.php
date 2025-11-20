@@ -51,4 +51,22 @@ class Club extends Model
         if (!$value) return null;
         return Carbon::parse($value)->format('Y');
     }
+    // Имя клуба: первая буква заглавная
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = ucfirst(strtolower(trim($value)));
+    }
+
+    // Страна: всегда заглавными
+    public function setCountryAttribute($value)
+    {
+        $this->attributes['country'] = strtoupper(trim($value));
+    }
+
+    // Президент: первая буква заглавная
+    public function setPresidentAttribute($value)
+    {
+        $this->attributes['president'] = ucfirst(strtolower(trim($value)));
+    }
+
 }
