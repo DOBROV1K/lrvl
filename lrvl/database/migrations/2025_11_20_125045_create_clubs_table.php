@@ -15,15 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('country')->nullable();
-            $table->date('founded')->nullable(); // дата основания (храним как date)
+            $table->date('founded')->nullable(); 
             $table->string('president')->nullable();
             $table->string('stadium')->nullable();
             $table->string('capacity')->nullable();
             $table->text('trophies')->nullable();
             $table->text('description')->nullable();
-            $table->string('image_path')->nullable(); // путь к загруженной картинке
+            $table->string('image_path')->nullable(); 
             $table->timestamps();
-            $table->softDeletes(); // для Soft Deletes (расширенный уровень)
+            $table->softDeletes(); 
         });
     }
 

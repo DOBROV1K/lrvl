@@ -35,7 +35,6 @@ class ClubController extends Controller
             'image' => 'nullable|image|max:5120'
         ]);
 
-        // Обработка изображения (Intervention Image v3)
         if ($request->hasFile('image')) {
 
             $img = $request->file('image');
@@ -43,11 +42,9 @@ class ClubController extends Controller
 
             $path = storage_path('app/public/clubs/' . $filename);
 
-            // Создание менеджера через драйвер GD
             $manager = new ImageManager(new Driver());
             $image = $manager->read($img);
 
-            // Аналог cover -> делает обрезку под нужный размер
             $image->cover(600, 400)->save($path);
 
             $data['image_path'] = 'storage/clubs/' . $filename;
@@ -81,14 +78,12 @@ class ClubController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:5120'
         ]);
-
-        // Обработка изображения
+        
         if ($request->hasFile('image')) {
-
-            // Удаляем прошлый файл
-            if ($club->image_path) {
-                $old = str_replace('storage/', '', $club->image_path);
-                Storage::disk('public')->delete($old);
+            // Исправленные строки 89-90:
+            if ($club->image_path && file_exists(public_path($club->image_path))) {
+                $oldImage = str_replace('storage/', '', $club->image_path);
+                Storage::disk('public')->delete($oldImage);
             }
 
             $img = $request->file('image');
