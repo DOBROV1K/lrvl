@@ -124,3 +124,25 @@ body {
 .card-footer {
   background: transparent !important;
 }
+
+.modal-dialog-scrollable .modal-body {
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+}
+.club-card .btn-sm {
+    padding: 6px 14px !important;
+    font-size: 0.88rem;
+}
+.card-footer .btn-sm {
+  padding: 8px 0 !important;
+  font-size: 0.9rem;
+  width: 100% !important;
+  text-align: center;
+}
+.club-card .card-footer .btn {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}

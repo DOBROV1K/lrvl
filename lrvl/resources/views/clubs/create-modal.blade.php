@@ -1,6 +1,6 @@
 <div class="modal fade zoom-modal" id="createClubModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content p-3">
+        <div class="modal-content p-3 d-flex flex-column">
 
             <div class="modal-header border-0">
                 <h5 class="modal-title">
@@ -12,7 +12,7 @@
             <form action="{{ route('clubs.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                <div class="modal-body">
+                <div class="modal-body flex-grow-1">
                     <div class="row g-3">
 
                         <div class="col-md-6">

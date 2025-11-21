@@ -33,44 +33,42 @@
             </p>
         </div>
 
-        <div class="card-footer bg-white border-0 mt-auto d-flex gap-2 justify-content-between">
-            <a href="{{ route('clubs.show', $club) }}" class="btn btn-primary btn-sm flex-fill">
-                Подробнее
-            </a>
+        <div class="card-footer bg-white border-0 mt-auto">
+            <div class="d-flex gap-2 justify-content-between align-items-stretch w-100">
+                <a href="{{ route('clubs.show', $club) }}" class="btn btn-primary btn-sm flex-fill d-flex align-items-center justify-content-center">
+                    Подробнее
+                </a>
 
-
-            <button 
-                class="btn btn-outline-secondary btn-sm edit-modal-btn"
-                data-id="{{ $club->id }}"
-                data-name="{{ $club->name }}"
-                data-country="{{ $club->country }}"
-                data-founded="{{ $club->founded }}"
-                data-president="{{ $club->president }}"
-                data-stadium="{{ $club->stadium }}"
-                data-capacity="{{ $club->capacity }}"
-                data-trophies="{{ $club->trophies }}"
-                data-description="{{ $club->description }}"
-                data-image="{{ asset($club->image_path) }}"
-            >
-                Редактировать
-            </button>
-
-            <form action="{{ route('clubs.destroy',$club) }}" method="POST">
-                @csrf
-                @method('DELETE')
-                <button class="btn btn-danger btn-sm" onclick="return confirm('Удалить?')">
-                    Удалить
+                <button 
+                    class="btn btn-outline-secondary btn-sm flex-fill edit-modal-btn"
+                    data-id="{{ $club->id }}"
+                    data-name="{{ $club->name }}"
+                    data-country="{{ $club->country }}"
+                    data-founded="{{ $club->founded }}"
+                    data-president="{{ $club->president }}"
+                    data-stadium="{{ $club->stadium }}"
+                    data-capacity="{{ $club->capacity }}"
+                    data-trophies="{{ $club->trophies }}"
+                    data-description="{{ $club->description }}"
+                    data-image="{{ asset($club->image_path) }}"
+                >
+                    Редактировать
                 </button>
-            </form>
+
+                <form action="{{ route('clubs.destroy',$club) }}" method="POST" class="flex-fill d-flex">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn btn-danger btn-sm flex-fill d-flex align-items-center justify-content-center" onclick="return confirm('Удалить?')">
+                        Удалить
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
-
-
 @endforeach
 </div>
 @endsection
 @include('clubs.modal')
 @include('clubs.edit-modal')
 @include('clubs.create-modal')
-
