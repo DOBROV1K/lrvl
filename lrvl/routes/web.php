@@ -8,4 +8,3 @@ Route::get('/', function () {
 
 Route::resource('clubs', ClubController::class);
 
-Route::get('/clubs/{club}', [ClubController::class, 'show'])->name('clubs.show');
