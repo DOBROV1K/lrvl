@@ -6,12 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class Club extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'clubs';
+    protected static function booted()
+    {
+        static::updating(function ($club) {
+            $user = Auth::user();
+            if (!$user || ($user->id !== $club->user_id && !$user->isAdmin())) {
+                throw new \Exception('Нет прав для обновления');
+            }
+        });
+
+        static::deleting(function ($club) {
+            $user = Auth::user();
+            if (!$user || ($user->id !== $club->user_id && !$user->isAdmin())) {
+                throw new \Exception('Нет прав для удаления');
+            }
+        });
+    }
 
     protected $fillable = [
         'name',
@@ -22,12 +38,16 @@ class Club extends Model
         'capacity',
         'trophies',
         'description',
-        'image_path'
+        'image_path',
+        'user_id'
     ];
 
-    protected $casts = [
-        'founded' => 'date',
-    ];
+    protected $casts = ['founded' => 'date'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function setFoundedAttribute($value)
     {
@@ -36,7 +56,6 @@ class Club extends Model
             return;
         }
 
-        
         if (preg_match('/^\d{4}$/', $value)) {
             $value = "$value-01-01";
         }
@@ -44,27 +63,8 @@ class Club extends Model
         $this->attributes['founded'] = Carbon::parse($value)->format('Y-m-d');
     }
 
-
     public function getFoundedAttribute($value)
     {
-        if (!$value) return null;
-        return Carbon::parse($value)->format('Y');
+        return $value ? Carbon::parse($value)->format('Y') : null;
     }
-    public function setNameAttribute($value)
-    {
-        $this->attributes['name'] = ucfirst(strtolower(trim($value)));
-    }
-
-    
-    public function setCountryAttribute($value)
-    {
-        $this->attributes['country'] = strtoupper(trim($value));
-    }
-
-    
-    public function setPresidentAttribute($value)
-    {
-        $this->attributes['president'] = ucfirst(strtolower(trim($value)));
-    }
-
 }
