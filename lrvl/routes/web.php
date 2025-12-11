@@ -8,6 +8,16 @@ use App\Http\Controllers\FriendController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\FeedController;
 
+Route::middleware('auth')->group(function () {
+    Route::get('/profile',  [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile',[ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile',[ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Управление API токенами
+    Route::post('/profile/tokens', [ProfileController::class, 'createToken'])->name('profile.tokens.create');
+    Route::delete('/profile/tokens/{tokenId}', [ProfileController::class, 'destroyToken'])->name('profile.tokens.destroy');
+});
+
 Route::get('/', fn() => redirect()->route('clubs.index'));
 Route::get('/dashboard', function () {
     return view('dashboard');

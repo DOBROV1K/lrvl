@@ -11,19 +11,16 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
     public function edit(Request $request): View
     {
+        $tokens = $request->user()->tokens;
+        
         return view('profile.edit', [
             'user' => $request->user(),
+            'tokens' => $tokens,
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
@@ -37,9 +34,6 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
@@ -56,5 +50,23 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function createToken(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'token_name' => 'required|string|max:255',
+        ]);
+
+        $token = $request->user()->createToken($request->token_name);
+
+        return Redirect::route('profile.edit')->with('token', $token->accessToken);
+    }
+
+    public function destroyToken(Request $request, $tokenId): RedirectResponse
+    {
+        $request->user()->tokens()->where('id', $tokenId)->delete();
+
+        return Redirect::route('profile.edit')->with('status', 'token-deleted');
     }
 }
