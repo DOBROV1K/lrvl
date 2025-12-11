@@ -49,6 +49,16 @@ class Club extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(\App\Models\Comment::class)->orderBy('created_at', 'desc');
+    }
+
+    public function players()
+    {
+        return $this->hasMany(Player::class);
+    }
+
     public function setFoundedAttribute($value)
     {
         if (!$value) {

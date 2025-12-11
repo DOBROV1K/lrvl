@@ -57,4 +57,40 @@ class User extends Authenticatable
     {
         return $this->is_admin;
     }
+
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')->withTimestamps();
+    }
+
+    public function friendedBy()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')->withTimestamps();
+    }
+
+    public function isFriendWith(User $user): bool
+    {
+        if (!$user->id) return false;
+        return $this->friends()->where('friend_id', $user->id)->exists();
+    }
+
+    public function addFriend(User $user)
+    {
+        if ($this->id === $user->id) return false;
+        if (!$this->isFriendWith($user)) {
+            $this->friends()->attach($user->id);
+            return true;
+        }
+        return false;
+    }
+
+    public function removeFriend(User $user)
+    {
+        if ($this->isFriendWith($user)) {
+            $this->friends()->detach($user->id);
+            return true;
+        }
+        return false;
+    }
+
 }

@@ -3,7 +3,6 @@
 @section('title', 'Корзина клубов')
 
 @section('content')
-<h1 class="mb-4">Удалённые клубы (Корзина)</h1>
 
 <a href="{{ route('clubs.index') }}" class="btn btn-outline-primary mb-3">
     <i class="fa-solid fa-arrow-left"></i> Назад к списку

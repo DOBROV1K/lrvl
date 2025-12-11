@@ -9,6 +9,9 @@ use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 
+/**
+ * @property string|null $image_path
+ */
 class ClubController extends Controller
 {
     protected static function middleware(): array
@@ -20,11 +23,12 @@ class ClubController extends Controller
     // Корзина — только для админа
     public function trash()
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
-            abort(403, 'Доступ запрещён');
-        }
+        abort_unless(auth()->check() && auth()->user()->isAdmin(), 403);
 
-        $clubs = Club::onlyTrashed()->orderBy('name')->get();
+        $clubs = Club::onlyTrashed()
+            ->with(['user'])
+            ->orderBy('name')
+            ->get();
 
         return view('clubs.trash', compact('clubs'));
     }
@@ -32,10 +36,16 @@ class ClubController extends Controller
 
     public function index()
     {
+        $query = Club::with([
+            'user',
+            'comments.user',
+            'players'
+        ])->orderBy('name');
+
         if (auth()->check() && auth()->user()->isAdmin()) {
-            $clubs = Club::withTrashed()->orderBy('name')->get();
+            $clubs = $query->withTrashed()->get();
         } else {
-            $clubs = Club::orderBy('name')->get();
+            $clubs = $query->get();
         }
 
         return view('clubs.index', compact('clubs'));
@@ -43,10 +53,15 @@ class ClubController extends Controller
 
     public function show(Club $club)
     {
-        // Prevent non-admins from viewing soft-deleted clubs
         if ($club->trashed() && (!auth()->check() || !auth()->user()->isAdmin())) {
             abort(404);
         }
+
+        $club->load([
+            'user',
+            'comments.user',
+            'players'
+        ]);
 
         return view('clubs.show', compact('club'));
     }
@@ -73,13 +88,11 @@ class ClubController extends Controller
         $data['user_id'] = auth()->id();
 
         if ($request->hasFile('image')) {
-            $img = $request->file('image');
-            $filename = uniqid() . '.' . $img->getClientOriginalExtension();
+            $filename = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
             $path = storage_path('app/public/clubs/' . $filename);
 
             $manager = new ImageManager(new Driver());
-            $image = $manager->read($img);
-            $image->cover(600, 400)->save($path);
+            $manager->read($request->file('image'))->cover(600, 400)->save($path);
 
             $data['image_path'] = 'storage/clubs/' . $filename;
         }
@@ -91,18 +104,14 @@ class ClubController extends Controller
 
     public function edit(Club $club)
     {
-        if (Gate::denies('update-club', $club)) {
-            abort(403);
-        }
+        abort_if(Gate::denies('update-club', $club), 403);
 
         return view('clubs.edit', compact('club'));
     }
 
     public function update(Request $request, Club $club)
     {
-        if (Gate::denies('update-club', $club)) {
-            abort(403);
-        }
+        abort_if(Gate::denies('update-club', $club), 403);
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -121,13 +130,11 @@ class ClubController extends Controller
                 Storage::disk('public')->delete(str_replace('storage/', '', $club->image_path));
             }
 
-            $img = $request->file('image');
-            $filename = uniqid() . '.' . $img->getClientOriginalExtension();
+            $filename = uniqid() . '.' . $request->file('image')->getClientOriginalExtension();
             $path = storage_path('app/public/clubs/' . $filename);
 
             $manager = new ImageManager(new Driver());
-            $image = $manager->read($img);
-            $image->cover(600, 400)->save($path);
+            $manager->read($request->file('image'))->cover(600, 400)->save($path);
 
             $data['image_path'] = 'storage/clubs/' . $filename;
         }
@@ -139,26 +146,24 @@ class ClubController extends Controller
 
     public function destroy(Club $club)
     {
-        if (Gate::denies('delete-club', $club)) {
-            abort(403);
-        }
+        abort_if(Gate::denies('delete-club', $club), 403);
 
         $club->delete();
-        return redirect()->route('clubs.index')->with('success', 'Клуб удалён (мягкое удаление)');
+        return redirect()->route('clubs.index')->with('success', 'Клуб удалён');
     }
 
     public function restore($id)
     {
-        if (Gate::denies('restore-club')) abort(403);
+        abort_if(Gate::denies('restore-club'), 403);
 
         Club::withTrashed()->findOrFail($id)->restore();
 
-        return redirect()->route('clubs.index')->with('success', 'Клуб восстановлен');
+        return redirect()->route('clubs.trash')->with('success', 'Клуб восстановлен');
     }
 
     public function forceDestroy($id)
     {
-        if (Gate::denies('force-delete-club')) abort(403);
+        abort_if(Gate::denies('force-delete-club'), 403);
 
         $club = Club::withTrashed()->findOrFail($id);
 
@@ -168,16 +173,22 @@ class ClubController extends Controller
 
         $club->forceDelete();
 
-        return redirect()->route('clubs.index')->with('success', 'Клуб удалён окончательно');
+        return redirect()->route('clubs.trash')->with('success', 'Клуб удалён окончательно');
     }
 
     public function userClubs($username)
     {
         $user = \App\Models\User::where('name', $username)->firstOrFail();
 
+        $query = $user->clubs()->with([
+            'user',
+            'players',
+            'comments.user'
+        ])->orderBy('name');
+
         $clubs = auth()->check() && auth()->user()->isAdmin()
-            ? $user->clubs()->withTrashed()->orderBy('name')->get()
-            : $user->clubs()->orderBy('name')->get();
+            ? $query->withTrashed()->get()
+            : $query->get();
 
         return view('clubs.user-clubs', compact('clubs', 'user'));
     }

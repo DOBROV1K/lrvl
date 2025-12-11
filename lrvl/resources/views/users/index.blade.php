@@ -3,7 +3,6 @@
 @section('title', 'Все пользователи')
 
 @section('content')
-<h1 class="mb-4">Список пользователей</h1>
 
 @if($users->isEmpty())
     <div class="alert alert-info">Пользователи отсутствуют</div>
